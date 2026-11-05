@@ -17,3 +17,4 @@ Podfile text eol=lf
 *.jpg binary
 *.webp binary
 *.ipa binary
+

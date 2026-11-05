@@ -27,3 +27,4 @@ workflows:
     artifacts:
       - CineVerse_XuperTV_Flutter_iOS.ipa
       - build/ios/iphoneos/*.app
+

@@ -38,3 +38,4 @@ else {
 
 Write-Host "`n¡Proyecto sincronizado exitosamente con $RepoUrl!" -ForegroundColor Green
 Write-Host "GitHub Actions compilará automáticamente CineVerse_XuperTV_Flutter_iOS.ipa en la pestaña 'Actions'." -ForegroundColor Cyan
+
