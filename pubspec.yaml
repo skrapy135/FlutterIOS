@@ -1,0 +1,30 @@
+name: cineverse_xuper_tv
+description: "CineVerse Stream (Xuper TV Edition) - App nativa para iOS en Flutter con diseño Cinematic Glass, PortalCore API, reproductor HLS, EPG en vivo y soporte IPTV M3U8/Xtream."
+publish_to: 'none'
+version: 4.34.4+100
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  http: ^1.2.2
+  shared_preferences: ^2.3.2
+  video_player: ^2.9.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/app_icon.png
+    - assets/images/splash_bg.png
+    - assets/images/home_bg.png
+    - assets/data/route_map.json
+    - assets/data/domain_config.json
+

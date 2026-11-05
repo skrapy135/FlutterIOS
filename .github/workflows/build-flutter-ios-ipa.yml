@@ -1,0 +1,80 @@
+name: Build CineVerse Flutter iOS (.ipa)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-flutter-ipa:
+    name: Compile CineVerse Xuper TV Flutter App for iOS (.ipa)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode Stable
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Set up Flutter Stable SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Synchronize Native iOS Runner & Custom Configs
+        run: |
+          if [ -d "CineVerse_Flutter_iOS" ]; then cd CineVerse_Flutter_iOS; fi
+          mkdir -p /tmp/cv_ios_backup
+          cp ios/Runner/Info.plist /tmp/cv_ios_backup/Info.plist
+          cp ios/Runner/AppDelegate.swift /tmp/cv_ios_backup/AppDelegate.swift
+          cp ios/Podfile /tmp/cv_ios_backup/Podfile
+          cp -R ios/Runner/Assets.xcassets /tmp/cv_ios_backup/Assets.xcassets
+
+          flutter create --platforms=ios --project-name cineverse_xuper_tv --org tv.cineverse.xuper .
+
+          cp /tmp/cv_ios_backup/Info.plist ios/Runner/Info.plist
+          cp /tmp/cv_ios_backup/AppDelegate.swift ios/Runner/AppDelegate.swift
+          cp /tmp/cv_ios_backup/Podfile ios/Podfile
+          rm -rf ios/Runner/Assets.xcassets
+          cp -R /tmp/cv_ios_backup/Assets.xcassets ios/Runner/Assets.xcassets
+
+      - name: Install Flutter Dependencies & CocoaPods
+        run: |
+          if [ -d "CineVerse_Flutter_iOS" ]; then cd CineVerse_Flutter_iOS; fi
+          flutter pub get
+          cd ios
+          pod install --repo-update
+          cd ..
+
+      - name: Analyze Dart Source Code
+        run: |
+          if [ -d "CineVerse_Flutter_iOS" ]; then cd CineVerse_Flutter_iOS; fi
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Build Release iOS App (.app) without Code Signing
+        run: |
+          if [ -d "CineVerse_Flutter_iOS" ]; then cd CineVerse_Flutter_iOS; fi
+          flutter build ios --release --no-codesign
+
+      - name: Ad-Hoc Sign & Package Payload into CineVerse_XuperTV_Flutter_iOS.ipa
+        run: |
+          if [ -d "CineVerse_Flutter_iOS" ]; then cd CineVerse_Flutter_iOS; fi
+          rm -rf build/ipa_payload
+          mkdir -p build/ipa_payload/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ipa_payload/Payload/Runner.app
+          codesign --force --deep --sign - build/ipa_payload/Payload/Runner.app
+          cd build/ipa_payload
+          zip -r9 "$GITHUB_WORKSPACE/CineVerse_XuperTV_Flutter_iOS.ipa" Payload
+
+      - name: Upload Compiled .ipa Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CineVerse_XuperTV_Flutter_iOS_IPA
+          path: CineVerse_XuperTV_Flutter_iOS.ipa
+          retention-days: 30

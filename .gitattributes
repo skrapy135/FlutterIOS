@@ -1,0 +1,19 @@
+* text=auto eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.dart text eol=lf
+*.swift text eol=lf
+*.h text eol=lf
+*.m text eol=lf
+*.plist text eol=lf
+*.pbxproj text eol=lf
+*.xcscheme text eol=lf
+*.storyboard text eol=lf
+*.xcconfig text eol=lf
+Podfile text eol=lf
+*.ps1 text eol=crlf
+*.png binary
+*.jpg binary
+*.webp binary
+*.ipa binary

@@ -1,0 +1,29 @@
+workflows:
+  ios-flutter-unsigned-ipa:
+    name: CineVerse Xuper TV Flutter iOS (.ipa)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Install CocoaPods dependencies
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+      - name: Build unsigned Flutter iOS Release (.app)
+        script: |
+          flutter build ios --release --no-codesign
+      - name: Package Ad-Hoc Signed .ipa
+        script: |
+          mkdir -p build/ipa_payload/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ipa_payload/Payload/Runner.app
+          codesign --force --deep --sign - build/ipa_payload/Payload/Runner.app
+          cd build/ipa_payload
+          zip -r9 ../../CineVerse_XuperTV_Flutter_iOS.ipa Payload
+    artifacts:
+      - CineVerse_XuperTV_Flutter_iOS.ipa
+      - build/ios/iphoneos/*.app
