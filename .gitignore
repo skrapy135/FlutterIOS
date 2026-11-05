@@ -34,5 +34,4 @@ migrate_working_dir/
 **/ios/Flutter/Flutter.podspec
 **/ios/Flutter/Generated.xcconfig
 **/ios/Flutter/ephemeral/
-**/ios/Runner/GeneratedPluginRegistrant.*
 
