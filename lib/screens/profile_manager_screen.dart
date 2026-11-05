@@ -296,7 +296,7 @@ class ProfileManagerScreen extends StatelessWidget {
                   const SizedBox(height: 10),
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
-                    activeColor: CVColors.primaryCrimson,
+                    activeThumbColor: CVColors.primaryCrimson,
                     title: const Text(
                       'Perfil Infantil (CineVerse Kids ATP)',
                       style: TextStyle(

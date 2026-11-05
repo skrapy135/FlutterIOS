@@ -27,30 +27,44 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Synchronize Native iOS Runner & Custom Configs
+      - name: Generate Clean Flutter iOS Runner & Inject CineVerse Assets/Plist
         run: |
           if [ -d "CineVerse_Flutter_iOS" ]; then cd CineVerse_Flutter_iOS; fi
           mkdir -p /tmp/cv_ios_backup
-          cp ios/Runner/Info.plist /tmp/cv_ios_backup/Info.plist
-          cp ios/Runner/AppDelegate.swift /tmp/cv_ios_backup/AppDelegate.swift
-          cp ios/Podfile /tmp/cv_ios_backup/Podfile
-          cp -R ios/Runner/Assets.xcassets /tmp/cv_ios_backup/Assets.xcassets
+          cp ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png /tmp/cv_ios_backup/Icon-1024.png
+          cp -R ios/Runner/Assets.xcassets/LaunchImage.imageset /tmp/cv_ios_backup/LaunchImage.imageset
 
+          rm -rf ios
           flutter create --platforms=ios --project-name cineverse_xuper_tv --org tv.cineverse.xuper .
 
-          cp /tmp/cv_ios_backup/Info.plist ios/Runner/Info.plist
-          cp /tmp/cv_ios_backup/AppDelegate.swift ios/Runner/AppDelegate.swift
-          cp /tmp/cv_ios_backup/Podfile ios/Podfile
-          rm -rf ios/Runner/Assets.xcassets
-          cp -R /tmp/cv_ios_backup/Assets.xcassets ios/Runner/Assets.xcassets
+          # Populate all AppIcon sizes from our 1024x1024 CineVerse icon using macOS sips
+          ICON_DIR="ios/Runner/Assets.xcassets/AppIcon.appiconset"
+          cp /tmp/cv_ios_backup/Icon-1024.png "$ICON_DIR/Icon-App-1024x1024@1x.png"
+          for f in "$ICON_DIR"/Icon-App-*.png; do
+            if [ "$f" != "$ICON_DIR/Icon-App-1024x1024@1x.png" ]; then
+              WIDTH=$(sips -g pixelWidth "$f" | awk '/pixelWidth:/{print $2}')
+              sips -z "$WIDTH" "$WIDTH" /tmp/cv_ios_backup/Icon-1024.png --out "$f" >/dev/null
+            fi
+          done
 
-      - name: Install Flutter Dependencies & CocoaPods
+          rm -rf ios/Runner/Assets.xcassets/LaunchImage.imageset
+          cp -R /tmp/cv_ios_backup/LaunchImage.imageset ios/Runner/Assets.xcassets/LaunchImage.imageset
+
+          # Configure Info.plist preserving Flutter 3.47+ UIApplicationSceneManifest
+          PLIST="ios/Runner/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName CineVerse" "$PLIST" || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string CineVerse" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleName CineVerse" "$PLIST" || /usr/libexec/PlistBuddy -c "Add :CFBundleName string CineVerse" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool true" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Delete :UIBackgroundModes" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes:0 string audio" "$PLIST"
+
+      - name: Install Flutter Packages
         run: |
           if [ -d "CineVerse_Flutter_iOS" ]; then cd CineVerse_Flutter_iOS; fi
           flutter pub get
-          cd ios
-          pod install --repo-update
-          cd ..
 
       - name: Analyze Dart Source Code
         run: |

@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $false, HelpMessage = "URL del repositorio GitHub para compilar el .ipa en GitHub Actions")]
-    [string]$RepoUrl = "https://github.com/skrapy135/StreamIOS-cineverse.git",
+    [string]$RepoUrl = "https://github.com/skrapy135/FlutterIOS.git",
     [switch]$ForcePush
 )
 

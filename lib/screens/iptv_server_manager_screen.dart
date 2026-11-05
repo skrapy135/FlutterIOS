@@ -316,7 +316,7 @@ class IPTVServerManagerScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 14),
                     DropdownButtonFormField<ServerProtocolType>(
-                      value: selectedType,
+                      initialValue: selectedType,
                       dropdownColor: CVColors.surfaceContainer,
                       style: const TextStyle(color: CVColors.textPrimary),
                       decoration: const InputDecoration(

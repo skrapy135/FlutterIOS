@@ -302,7 +302,7 @@ class _CinematicVideoPlayerScreenState
     VideoPlayerController? c,
     bool isInitialized,
   ) {
-    final isPlaying = isInitialized && c.value.isPlaying;
+    final isPlaying = c != null && isInitialized && c.value.isPlaying;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -311,7 +311,7 @@ class _CinematicVideoPlayerScreenState
             borderRadius: 30,
             padding: const EdgeInsets.all(13),
             onTap: () {
-              if (!isInitialized) return;
+              if (c == null || !isInitialized) return;
               final target =
                   c.value.position - const Duration(seconds: 10);
               c.seekTo(target < Duration.zero ? Duration.zero : target);
@@ -326,7 +326,7 @@ class _CinematicVideoPlayerScreenState
         ],
         GestureDetector(
           onTap: () {
-            if (!isInitialized) return;
+            if (c == null || !isInitialized) return;
             setState(() {
               c.value.isPlaying ? c.pause() : c.play();
             });
@@ -357,7 +357,7 @@ class _CinematicVideoPlayerScreenState
             borderRadius: 30,
             padding: const EdgeInsets.all(13),
             onTap: () {
-              if (!isInitialized) return;
+              if (c == null || !isInitialized) return;
               final target =
                   c.value.position + const Duration(seconds: 10);
               c.seekTo(target);
@@ -377,8 +377,10 @@ class _CinematicVideoPlayerScreenState
     VideoPlayerController? c,
     bool isInitialized,
   ) {
-    final position = isInitialized ? c.value.position : Duration.zero;
-    final duration = isInitialized ? c.value.duration : Duration.zero;
+    final position =
+        (c != null && isInitialized) ? c.value.position : Duration.zero;
+    final duration =
+        (c != null && isInitialized) ? c.value.duration : Duration.zero;
     final maxSeconds =
         duration.inSeconds > 0 ? duration.inSeconds.toDouble() : 1.0;
     final currentSeconds =
@@ -400,7 +402,7 @@ class _CinematicVideoPlayerScreenState
               min: 0.0,
               max: maxSeconds,
               onChanged: (val) {
-                if (isInitialized) {
+                if (c != null && isInitialized) {
                   c.seekTo(Duration(seconds: val.round()));
                 }
               },
